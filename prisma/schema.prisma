@@ -1,0 +1,192 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CREATOR
+  EDITOR
+}
+
+model Users {
+  id              Int             @id @default(autoincrement())
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+  email           String          @unique
+  password        String
+  firstname       String
+  lastname        String
+  phone           String
+  profiles        ProfilesUsers[]
+  settings        UserSettings[]
+  active_profile  Profiles        @relation(fields: [activeProfileId], references: [id])
+  activeProfileId Int             @map("active_profile_id")
+}
+
+model Profiles {
+  id          Int             @id @default(autoincrement())
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  name        String
+  description String?
+  users       ProfilesUsers[]
+  ledgers     Ledgers[]
+  activeUsers Users[]
+  expenses    Expenses[]
+  revenues    Revenues[]
+}
+
+model ProfilesUsers {
+  id        Int      @id @default(autoincrement())
+  user      Users    @relation(fields: [userId], references: [id])
+  userId    Int
+  profile   Profiles @relation(fields: [profileId], references: [id])
+  profileId Int
+  role      Role
+
+  @@unique([userId, profileId])
+}
+
+model UserSettings {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  key       String
+  value     String
+  user      Users    @relation(fields: [userId], references: [id])
+  userId    Int
+}
+
+enum LedgerTypes {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  INVESTMENT
+  BANK_SAVINGS
+  ONLINE_WALLET
+  CRYPTO_WALLET
+  CRYPTO_EXCHANGE
+  OTHER
+}
+
+model Ledgers {
+  id          Int              @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+  type        LedgerTypes
+  profile     Profiles         @relation(fields: [profileId], references: [id])
+  profileId   Int
+  balances    LedgerBalances[]
+}
+
+model Currencies {
+  id        Int              @id @default(autoincrement())
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+  name      String
+  symbol    String
+  code      String
+  ledgers   LedgerBalances[]
+}
+
+model LedgerBalances {
+  id         Int        @id @default(autoincrement())
+  name       String
+  icon       String
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+  balance    Float
+  currency   Currencies @relation(fields: [currencyId], references: [id])
+  currencyId Int
+  ledger     Ledgers    @relation(fields: [ledgerId], references: [id])
+  ledgerId   Int
+
+  fromBalanceId Expenses[] @relation("fromBalanceId")
+  toBalanceId   Expenses[] @relation("toBalanceId")
+
+  revenues Revenues[]
+}
+
+// model Tags {
+//   id         String    @id @default(uuid())
+//   createdAt  DateTime  @default(now()) @map("created_at")
+//   updatedAt  DateTime  @updatedAt @map("updated_at")
+//   label      String
+//   profile    Profiles  @relation(fields: [profileId], references: [id])
+//   profileId  String
+//   expenses   Expenses? @relation(fields: [expensesId], references: [id])
+//   expensesId String?
+// }
+
+model Expenses {
+  id            Int            @id @default(autoincrement())
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  description   String?
+  amount        Float
+  fromBalance   LedgerBalances @relation("fromBalanceId", fields: [fromBalanceId], references: [id])
+  fromBalanceId Int
+  toBalance     LedgerBalances @relation("toBalanceId", fields: [toBalanceId], references: [id])
+  toBalanceId   Int
+
+  category      Categories    @relation(fields: [categoryId], references: [id])
+  categoryId    Int
+  subCategory   SubCategories @relation(fields: [subCategoryId], references: [id])
+  subCategoryId Int
+  profile       Profiles      @relation(fields: [profileId], references: [id])
+  profileId     Int
+  comission     Comissions[]
+  // tags          Tags[]
+}
+
+model Revenues {
+  id               Int            @id @default(autoincrement())
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  description      String?
+  amount           Float
+  ledgerBalances   LedgerBalances @relation(fields: [ledgerBalancesId], references: [id])
+  ledgerBalancesId Int
+  profile          Profiles       @relation(fields: [profileId], references: [id])
+  profileId        Int
+}
+
+model Comissions {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  date        DateTime
+  description String?
+  amount      Float
+
+  expense   Expenses @relation(fields: [expenseId], references: [id])
+  expenseId Int
+}
+
+model Categories {
+  id            Int             @id @default(autoincrement())
+  name          String
+  icon          String
+  subCategories SubCategories[]
+
+  expenses Expenses[]
+}
+
+model SubCategories {
+  id         Int        @id @default(autoincrement())
+  name       String
+  icon       String
+  categories Categories @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  expenses Expenses[]
+}
