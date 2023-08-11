@@ -7,6 +7,9 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaService } from "./prisma.service";
 import { ProfileController } from './profile/profile.controller';
 import { ProfileModule } from './profile/profile.module';
+import { UserController } from "./user/user.controller";
+import { ProfileService } from "./profile/profile.service";
+import { UserService } from "./user/user.service";
 
 @Module({
   imports: [
@@ -17,8 +20,7 @@ import { ProfileModule } from './profile/profile.module';
     },),
     ProfileModule
   ],
-  controllers: [AppController, ProfileController],
-  providers: [AppService,
-    PrismaService],
+  controllers: [AppController, ProfileController, UserController],
+  providers: [AppService, PrismaService, ProfileService, UserService],
 })
 export class AppModule {}

@@ -11,7 +11,7 @@ import { UserService } from "../user/user.service";
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
 import { ConfigService } from "@nestjs/config";
-import { comparePassword, getHashedPassword } from "../utils/password";
+import { comparePassword } from "../utils/password";
 import { ProfileService } from "../profile/profile.service";
 
 @Injectable()

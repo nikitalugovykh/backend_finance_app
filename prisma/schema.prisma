@@ -26,14 +26,32 @@ model Users {
   phone           String
   profiles        ProfilesUsers[]
   settings        UserSettings[]
-  active_profile  Profiles        @relation(fields: [activeProfileId], references: [id])
-  activeProfileId Int             @map("active_profile_id")
+  active_profile  Profiles?       @relation(fields: [activeProfileId], references: [id])
+  activeProfileId Int?            @map("active_profile_id")
+}
+
+enum ProfileInvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model InvitiesToProfile {
+  id        Int                     @id @default(autoincrement())
+  createdAt DateTime                @default(now()) @map("created_at")
+  updatedAt DateTime                @updatedAt @map("updated_at")
+  email     String
+  profile   Profiles                @relation(fields: [profileId], references: [id])
+  profileId Int
+  role      ProfileInvitationStatus
+
+  @@unique([email, profileId])
 }
 
 model Profiles {
-  id          Int             @id @default(autoincrement())
-  createdAt   DateTime        @default(now()) @map("created_at")
-  updatedAt   DateTime        @updatedAt @map("updated_at")
+  id          Int                 @id @default(autoincrement())
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
   name        String
   description String?
   users       ProfilesUsers[]
@@ -41,6 +59,7 @@ model Profiles {
   activeUsers Users[]
   expenses    Expenses[]
   revenues    Revenues[]
+  invities    InvitiesToProfile[]
 }
 
 model ProfilesUsers {

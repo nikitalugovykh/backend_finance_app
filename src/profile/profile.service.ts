@@ -2,14 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from "../prisma.service";
 import { ProfileDto } from "./dto/profile.dto";
 import { Profiles, Users } from "@prisma/client";
-import { UserService } from "../user/user.service";
+import { UserRoles } from "../@types/user";
 
 @Injectable()
 export class ProfileService {
   constructor(
     private prisma: PrismaService,
-    private userService: UserService
     ) {}
+
+
+  async getProfile(profileId: Profiles["id"]) {
+    const profile = await this.prisma.profiles.findUnique({
+      where: {id: profileId}
+    })
+
+    return profile
+  }
 
   async createProfile(id: Users["id"], name: string = 'Main') {
     const profile =  await this.prisma.profiles.create({
@@ -18,7 +26,7 @@ export class ProfileService {
         users: {
           create: [
             {
-              role: 'CREATOR',
+              role: UserRoles.Creator,
               user: {
                 connect: {id: id}
               }
