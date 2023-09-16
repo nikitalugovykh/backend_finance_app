@@ -7,7 +7,8 @@ import { getJwtConfig } from "../config/jwt.config";
 import { JwtStrategy } from "./jwt.strategy";
 import { PrismaService } from "../prisma.service";
 import { UserService } from "../user/user.service";
-import { ProfileService } from "../profile/profile.service";
+import { PortfolioService } from "../portfolio/portfolio.service";
+import { SettingService } from "../setting/setting.service";
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { ProfileService } from "../profile/profile.service";
       imports: [ConfigModule]
     })
   ],
-  providers: [AuthService, JwtStrategy, PrismaService, UserService, ProfileService],
+  providers: [AuthService, PrismaService, JwtStrategy, UserService, PortfolioService, SettingService],
   controllers: [AuthController]
 })
 export class AuthModule {}

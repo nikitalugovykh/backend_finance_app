@@ -1,4 +1,16 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, UsePipes, ValidationPipe } from "@nestjs/common";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete, ForbiddenException,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  UsePipes,
+  ValidationPipe
+} from "@nestjs/common";
 import { UserService } from "./user.service";
 import { Auth } from "../auth/decorators/auth.decorator";
 import { CurrentUser } from "../auth/decorators/user.decorator";
@@ -7,14 +19,14 @@ import { UpdateUserDto } from "./dto/updateUser.dto";
 @Controller('user')
 export class UserController {
 
-  constructor(private UserService: UserService) {
+  constructor(private userService: UserService) {
   }
 
   @Get(':id')
   @Auth()
   @HttpCode(HttpStatus.OK)
   async getUser(@CurrentUser("id") id: number) {
-    return this.UserService.byParam('id', id)
+    return this.userService.byParam('id', id)
   }
 
   @UsePipes(new ValidationPipe())
@@ -22,6 +34,13 @@ export class UserController {
   @Auth()
   @HttpCode(HttpStatus.OK)
   async updateUser(@CurrentUser("id") id: number, @Body() dto: UpdateUserDto) {
-    return this.UserService.updateUser({id, dto})
+    return this.userService.updateUser({id, dto})
+  }
+
+  @Delete()
+  @Auth()
+  @HttpCode(HttpStatus.OK)
+  async deleteUser(@CurrentUser('id') currentUser: number) {
+    return this.userService.deleteUser(currentUser)
   }
 }

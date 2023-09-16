@@ -12,16 +12,16 @@ import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
 import { ConfigService } from "@nestjs/config";
 import { comparePassword } from "../utils/password";
-import { ProfileService } from "../profile/profile.service";
+import { PortfolioService } from "../portfolio/portfolio.service";
+import { SettingService } from "../setting/setting.service";
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
     private jwtService: JwtService,
     private userService: UserService,
-    private configService: ConfigService,
-    private profileService: ProfileService
+    private portfolioService: PortfolioService,
+    private settingService: SettingService
   ) {
   }
 
@@ -55,18 +55,18 @@ export class AuthService {
 
   async register(dto: RegisterDto) {
 
-    const user = await this.userService.createUsers(dto)
+      const user = await this.userService.createUsers(dto)
+      const portfolio = await this.portfolioService.createPortfolio(user.id);
 
-    const profileId = await this.profileService.createProfile(user.id);
+      await this.settingService.setParams(user.id, {activePortfolioId: String(portfolio.id)})
 
-    await this.userService.updateUser({id: user.id, dto: {activeProfileId: profileId}})
+      const tokens = await this.issueToken(user.id);
 
-    const tokens = await this.issueToken(user.id);
+      return {
+        user: this.returnUserFields(user),
+        ...tokens
+      };
 
-    return {
-      user: this.returnUserFields(user),
-      ...tokens
-    };
   }
 
   private async issueToken(userId: number) {

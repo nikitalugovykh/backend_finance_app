@@ -21,8 +21,4 @@ export class UserDto implements Prisma.UsersCreateInput {
 
   @IsString()
   phone: string
-
-  @IsOptional()
-  @IsNumber()
-  activeProfileId?: number
 }

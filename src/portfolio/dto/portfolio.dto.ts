@@ -1,7 +1,7 @@
 import { IsOptional, IsString } from "class-validator";
 import { Prisma } from "@prisma/client";
 
-export class ProfileDto implements Prisma.ProfilesCreateInput {
+export class PortfolioDto implements Prisma.PortfoliosCreateInput {
   @IsString()
   name: string;
 

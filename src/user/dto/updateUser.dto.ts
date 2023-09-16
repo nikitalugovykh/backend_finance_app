@@ -25,8 +25,4 @@ export class UpdateUserDto implements Prisma.UsersUpdateInput {
   @IsOptional()
   @IsString()
   phone?: string
-
-  @IsOptional()
-  @IsNumber()
-  activeProfileId?: number
 }

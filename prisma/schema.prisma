@@ -16,61 +16,59 @@ enum Role {
 }
 
 model Users {
-  id              Int             @id @default(autoincrement())
-  createdAt       DateTime        @default(now()) @map("created_at")
-  updatedAt       DateTime        @updatedAt @map("updated_at")
-  email           String          @unique
-  password        String
-  firstname       String
-  lastname        String
-  phone           String
-  profiles        ProfilesUsers[]
-  settings        UserSettings[]
-  active_profile  Profiles?       @relation(fields: [activeProfileId], references: [id])
-  activeProfileId Int?            @map("active_profile_id")
+  id          Int                      @id @default(autoincrement())
+  createdAt   DateTime                 @default(now()) @map("created_at")
+  updatedAt   DateTime                 @updatedAt @map("updated_at")
+  email       String                   @unique
+  password    String
+  firstname   String
+  lastname    String
+  phone       String
+  portfolios  PortfoliosUsers[]
+  settings    UserSettings[]
+  invitations InvitationsToPortfolio[]
 }
 
-enum ProfileInvitationStatus {
+enum PortfolioInvitationStatus {
   PENDING
   ACCEPTED
-  REJECTED
+  DECLINED
 }
 
-model InvitiesToProfile {
-  id        Int                     @id @default(autoincrement())
-  createdAt DateTime                @default(now()) @map("created_at")
-  updatedAt DateTime                @updatedAt @map("updated_at")
-  email     String
-  profile   Profiles                @relation(fields: [profileId], references: [id])
-  profileId Int
-  role      ProfileInvitationStatus
-
-  @@unique([email, profileId])
+model InvitationsToPortfolio {
+  id          Int                       @id @default(autoincrement())
+  createdAt   DateTime                  @default(now()) @map("created_at")
+  updatedAt   DateTime                  @updatedAt @map("updated_at")
+  email       String
+  portfolio   Portfolios                @relation(fields: [portfolioId], references: [id])
+  portfolioId Int
+  user        Users                     @relation(fields: [userId], references: [id])
+  userId      Int
+  status      PortfolioInvitationStatus
 }
 
-model Profiles {
-  id          Int                 @id @default(autoincrement())
-  createdAt   DateTime            @default(now()) @map("created_at")
-  updatedAt   DateTime            @updatedAt @map("updated_at")
+model Portfolios {
+  id          Int                      @id @default(autoincrement())
+  createdAt   DateTime                 @default(now()) @map("created_at")
+  updatedAt   DateTime                 @updatedAt @map("updated_at")
   name        String
   description String?
-  users       ProfilesUsers[]
+  users       PortfoliosUsers[]
   ledgers     Ledgers[]
-  activeUsers Users[]
   expenses    Expenses[]
   revenues    Revenues[]
-  invities    InvitiesToProfile[]
+  invitations InvitationsToPortfolio[]
 }
 
-model ProfilesUsers {
-  id        Int      @id @default(autoincrement())
-  user      Users    @relation(fields: [userId], references: [id])
-  userId    Int
-  profile   Profiles @relation(fields: [profileId], references: [id])
-  profileId Int
-  role      Role
+model PortfoliosUsers {
+  id          Int        @id @default(autoincrement())
+  user        Users      @relation(fields: [userId], references: [id])
+  userId      Int
+  portfolio   Portfolios @relation(fields: [portfolioId], references: [id])
+  portfolioId Int
+  role        Role
 
-  @@unique([userId, profileId])
+  @@unique([userId, portfolioId])
 }
 
 model UserSettings {
@@ -102,8 +100,8 @@ model Ledgers {
   createdAt   DateTime         @default(now()) @map("created_at")
   updatedAt   DateTime         @updatedAt @map("updated_at")
   type        LedgerTypes
-  profile     Profiles         @relation(fields: [profileId], references: [id])
-  profileId   Int
+  portfolio   Portfolios       @relation(fields: [portfolioId], references: [id])
+  portfolioId Int
   balances    LedgerBalances[]
 }
 
@@ -161,8 +159,8 @@ model Expenses {
   categoryId    Int
   subCategory   SubCategories @relation(fields: [subCategoryId], references: [id])
   subCategoryId Int
-  profile       Profiles      @relation(fields: [profileId], references: [id])
-  profileId     Int
+  portfolio     Portfolios    @relation(fields: [portfolioId], references: [id])
+  portfolioId   Int
   comission     Comissions[]
   // tags          Tags[]
 }
@@ -175,8 +173,8 @@ model Revenues {
   amount           Float
   ledgerBalances   LedgerBalances @relation(fields: [ledgerBalancesId], references: [id])
   ledgerBalancesId Int
-  profile          Profiles       @relation(fields: [profileId], references: [id])
-  profileId        Int
+  portfolio        Portfolios     @relation(fields: [portfolioId], references: [id])
+  portfolioId      Int
 }
 
 model Comissions {

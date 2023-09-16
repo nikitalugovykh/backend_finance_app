@@ -1,7 +1,7 @@
-import { IsEmail, IsString, MinLength, IsNumber } from "class-validator";
+import { IsEmail, IsString, MinLength } from "class-validator";
 import { Prisma } from "@prisma/client";
 
-export class RegisterDto implements Omit<Prisma.UsersCreateInput, 'active_profile'> {
+export class RegisterDto implements Prisma.UsersCreateInput {
   @IsEmail()
   email: string
   

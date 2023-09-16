@@ -7,14 +7,16 @@ import { ConfigService } from "@nestjs/config";
 import { getHashedPassword } from "../utils/password";
 import { RegisterDto } from "../auth/dto/register.dto";
 import { UpdateUserDto } from "./dto/updateUser.dto";
+import { PortfolioService } from "../portfolio/portfolio.service";
+import { UserRoles } from "./types/user";
 
 @Injectable()
 export class UserService {
   constructor(
     private prisma: PrismaService,
-    private configService: ConfigService
-  ) {
-  }
+    private configService: ConfigService,
+    private portfolioService: PortfolioService,
+  ) {}
 
   async byParam(param: keyof Prisma.UsersWhereUniqueInput, value: any, selectObject?: Prisma.UsersSelect) {
     const user = await this.prisma.users.findUnique({
@@ -47,16 +49,46 @@ export class UserService {
       data: {
         ...dto,
         password: await getHashedPassword(dto.password, +this.configService.get('SALT_ROUNDS'))
+      },
+      select: {
+        ...returnUserObject,
       }
     });
     
     return user
   }
 
+  async deleteUser(id: Users["id"]) {
 
+    await this.prisma.users.update({
+      where: {id},
+      data: {
+        portfolios: {
+          deleteMany: {
+            userId: id,
+            role: UserRoles.Creator
+          }
+        },
+        settings: {
+          deleteMany: {}
+        },
+        invitations: {
+          deleteMany: {}
+        }
+      }
+    })
 
-  async deleteUser() {
+    const portfolios = await this.prisma.portfolios.deleteMany({
+      where: {
 
+      }
+    })
+
+     const deletedUser = await this.prisma.users.delete({
+      where: { id },
+    })
+
+  return deletedUser
   }
 
 
@@ -88,5 +120,11 @@ export class UserService {
     delete updatedUser.password
 
     return updatedUser
+  }
+
+
+
+  private getUserFields(user: Partial<Users>) {
+
   }
 }

@@ -1,15 +1,17 @@
-import { Module } from '@nestjs/common';
+import { Module } from "@nestjs/common";
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from "@nestjs/config"
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { PrismaService } from "./prisma.service";
-import { ProfileController } from './profile/profile.controller';
-import { ProfileModule } from './profile/profile.module';
+import { PortfolioController } from './portfolio/portfolio.controller';
+import { PortfolioModule } from './portfolio/portfolio.module';
 import { UserController } from "./user/user.controller";
-import { ProfileService } from "./profile/profile.service";
+import { PortfolioService } from "./portfolio/portfolio.service";
 import { UserService } from "./user/user.service";
+import { SettingModule } from "./setting/setting.module";
+import { SettingService } from "./setting/setting.service";
 
 @Module({
   imports: [
@@ -18,9 +20,10 @@ import { UserService } from "./user/user.service";
     ConfigModule.forRoot({
       envFilePath: '.env',
     },),
-    ProfileModule
+    PortfolioModule,
+    SettingModule,
   ],
-  controllers: [AppController, ProfileController, UserController],
-  providers: [AppService, PrismaService, ProfileService, UserService],
+  controllers: [AppController, PortfolioController, UserController],
+  providers: [AppService, PrismaService, PortfolioService, UserService, SettingService],
 })
 export class AppModule {}

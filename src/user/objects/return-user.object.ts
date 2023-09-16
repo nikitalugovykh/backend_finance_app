@@ -5,8 +5,14 @@ export const returnUserObject: Prisma.UsersSelect = {
 	email: true,
 	firstname: true,
 	lastname: true,
-	password: false,
 	phone: true,
 	createdAt: true,
 	updatedAt: true,
+
+
+	portfolios: false,
+	settings: false,
+	password: false,
+	invitations: false
+
 }
